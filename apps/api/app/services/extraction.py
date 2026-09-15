@@ -115,6 +115,8 @@ _PIPELINE_PATTERN = re.compile(
 _DEALS_CLOSED_PATTERN = re.compile(
     r"closed (\d+) commercial deals in the final two months of \d{4}, with a combined estimated value of approx\.\s*€([\d.]+)k"
 )
+_CAGR_TARGET_PATTERN = re.compile(r"compound annual growth rate of no less than (\d+)%")
+_EBITDA_TARGET_PATTERN = re.compile(r"anticipating becoming EBITDA positive during FY(\d{4})")
 
 
 def extract_narrative_kpis(text: str) -> list[ExtractedLineItem]:
@@ -144,6 +146,16 @@ def extract_narrative_kpis(text: str) -> list[ExtractedLineItem]:
             ExtractedLineItem(
                 statement="kpi", line_item="deals_closed_final_two_months_value_eur", value_eur=float(value_k) * 1000, raw_snippet=match.group(0)
             )
+        )
+
+    match = _CAGR_TARGET_PATTERN.search(normalized)
+    if match:
+        items.append(ExtractedLineItem(statement="kpi", line_item="strategy_cagr_target_pct", value_eur=float(match.group(1)), raw_snippet=match.group(0)))
+
+    match = _EBITDA_TARGET_PATTERN.search(normalized)
+    if match:
+        items.append(
+            ExtractedLineItem(statement="kpi", line_item="strategy_ebitda_positive_target_fy", value_eur=float(match.group(1)), raw_snippet=match.group(0))
         )
     return items
 

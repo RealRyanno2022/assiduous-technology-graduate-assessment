@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.routers import auth, insights, metrics
+from app.routers import auth, insights, metrics, reports
 
 app = FastAPI(title="Senus Board Report API", version="0.1.0")
 
@@ -17,6 +17,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(metrics.router)
 app.include_router(insights.router)
+app.include_router(reports.router)
 
 
 @app.get("/health")

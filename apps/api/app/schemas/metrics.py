@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -40,3 +40,15 @@ class QARequest(BaseModel):
 class QAResponse(BaseModel):
     answer: str
     model: str
+
+
+class ReportSection(BaseModel):
+    heading: str
+    body: str
+
+
+class DirectorsReportResponse(BaseModel):
+    period_label: str
+    sections: list[ReportSection]
+    model: str
+    generated_at: datetime

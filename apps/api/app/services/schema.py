@@ -49,6 +49,8 @@ LINE_ITEM_KEYS = {
         "enterprise_customers_closed",
         "deals_closed_final_two_months",
         "deals_closed_final_two_months_value_eur",
+        "strategy_cagr_target_pct",
+        "strategy_ebitda_positive_target_fy",
     ],
 }
 
