@@ -170,11 +170,21 @@ def _seed_fy2025_context(db, company: Company, source_doc: SourceDocument, hy202
     db.commit()
 
 
+# One demo account per Board Report reader the brief names - each gets a role-scoped
+# view enforced server-side (see app/services/role_access.py), not just a relabeled login
+_DEMO_USERS = [
+    ("management@senus.com", "Brendan Allen", "management"),
+    ("board@senus.com", "Gerard Keenan", "board"),
+    ("investor@senus.com", "Equity Investor", "equity_investor"),
+    ("lender@senus.com", "Credit Provider", "credit_provider"),
+]
+
+
 def _seed_demo_user(db):
-    existing = db.query(User).filter(User.email == "ceo@senus.com").first()
-    if existing:
-        return
-    db.add(User(email="ceo@senus.com", hashed_password=hash_password("senus2030"), full_name="Brendan Allen", role="ceo"))
+    for email, full_name, role in _DEMO_USERS:
+        if db.query(User).filter(User.email == email).first():
+            continue
+        db.add(User(email=email, hashed_password=hash_password("senus2030"), full_name=full_name, role=role))
     db.commit()
 
 

@@ -14,4 +14,9 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
     user = db.query(User).filter(User.email == form.username).first()
     if user is None or not verify_password(form.password, user.hashed_password):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email or password")
-    return {"access_token": create_access_token(user.email), "token_type": "bearer"}
+    return {
+        "access_token": create_access_token(user.email),
+        "token_type": "bearer",
+        "role": user.role,
+        "full_name": user.full_name,
+    }

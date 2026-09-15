@@ -22,6 +22,7 @@ class CategoryResponse(BaseModel):
     period_start: date
     period_end: date
     is_audited: bool
+    access_level: str  # "full" | "summary" - which tier the requesting role sees
     metrics: list[MetricOut]
     line_items: list[LineItemOut]
 
