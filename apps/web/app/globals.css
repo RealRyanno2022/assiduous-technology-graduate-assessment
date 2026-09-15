@@ -21,6 +21,9 @@
   --status-good: #0ca30c;
   --status-critical: #d03b3b;
   --chart-grid: #e1e0d9;
+
+  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,6 +46,36 @@
     --status-good: #0ca30c;
     --status-critical: #d03b3b;
     --chart-grid: #2c2c2a;
+  }
+}
+
+/* Per-role accent - UI chrome only (nav highlight, headings, buttons); the
+   validated data-viz tokens above are shared across every role unchanged, since
+   those are what chart marks and KPI sign-coloring rely on for CVD safety */
+body[data-role="board"] {
+  --accent: #2c4870;
+  --accent-soft: #e6ecf5;
+}
+body[data-role="equity_investor"] {
+  --accent: #8a5a00;
+  --accent-soft: #f5ecd9;
+}
+body[data-role="credit_provider"] {
+  --accent: #42566d;
+  --accent-soft: #e7ecf1;
+}
+@media (prefers-color-scheme: dark) {
+  body[data-role="board"] {
+    --accent: #8fb0e8;
+    --accent-soft: #1c2c42;
+  }
+  body[data-role="equity_investor"] {
+    --accent: #e0ab4a;
+    --accent-soft: #3a2c10;
+  }
+  body[data-role="credit_provider"] {
+    --accent: #a3b7cf;
+    --accent-soft: #23303e;
   }
 }
 
@@ -78,4 +111,31 @@ a {
 
 button {
   font-family: inherit;
+}
+
+h1 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+
+.role-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
 }

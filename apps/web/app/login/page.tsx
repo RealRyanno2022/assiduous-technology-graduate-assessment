@@ -4,9 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
 
+const DEMO_ACCOUNTS = [
+  { email: "management@senus.com", label: "Management", hint: "Full detail, every category" },
+  { email: "board@senus.com", label: "Board", hint: "Governance view - trimmed sales-ops detail" },
+  { email: "investor@senus.com", label: "Equity Investor", hint: "Growth & returns in depth, balance sheet headline-only" },
+  { email: "lender@senus.com", label: "Credit Provider", hint: "Cash & solvency in depth, returns hidden" },
+];
+
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("ceo@senus.com");
+  const [email, setEmail] = useState("management@senus.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -35,7 +42,7 @@ export default function LoginPage() {
         padding: 16,
       }}
     >
-      <form onSubmit={onSubmit} className="card" style={{ width: 360, display: "flex", flexDirection: "column", gap: 14 }}>
+      <form onSubmit={onSubmit} className="card" style={{ width: 400, display: "flex", flexDirection: "column", gap: 14 }}>
         <div>
           <div style={{ fontSize: 12, letterSpacing: "0.06em", color: "var(--accent)", fontWeight: 600, textTransform: "uppercase" }}>
             Senus PLC
@@ -87,9 +94,30 @@ export default function LoginPage() {
           {loading ? "Signing in..." : "Sign in"}
         </button>
 
-        <p className="faint" style={{ fontSize: 11.5, margin: 0 }}>
-          Demo credentials: ceo@senus.com / senus2030
-        </p>
+        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+          <p className="faint" style={{ fontSize: 11, margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            Demo accounts &middot; password senus2030 for all
+          </p>
+          {DEMO_ACCOUNTS.map((acct) => (
+            <button
+              key={acct.email}
+              type="button"
+              onClick={() => setEmail(acct.email)}
+              style={{
+                textAlign: "left",
+                background: email === acct.email ? "var(--accent-soft)" : "transparent",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: "7px 10px",
+                cursor: "pointer",
+                color: "var(--ink)",
+              }}
+            >
+              <div style={{ fontSize: 12.5, fontWeight: 600 }}>{acct.label}</div>
+              <div className="faint" style={{ fontSize: 11 }}>{acct.hint}</div>
+            </button>
+          ))}
+        </div>
       </form>
     </main>
   );

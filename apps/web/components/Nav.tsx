@@ -1,22 +1,46 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { clearToken } from "@/lib/api";
+import { clearToken, getFullName, getRole, type Role } from "@/lib/api";
 
-const ITEMS = [
+const ITEMS: { href: string; label: string; category?: string }[] = [
   { href: "/dashboard", label: "Directors' Report" },
-  { href: "/dashboard/growth", label: "Growth & Revenue" },
-  { href: "/dashboard/profitability", label: "Profitability" },
-  { href: "/dashboard/cash-liquidity", label: "Cash & Liquidity" },
-  { href: "/dashboard/solvency", label: "Solvency & Leverage" },
-  { href: "/dashboard/returns", label: "Returns" },
+  { href: "/dashboard/growth", label: "Growth & Revenue", category: "growth" },
+  { href: "/dashboard/profitability", label: "Profitability", category: "profitability" },
+  { href: "/dashboard/cash-liquidity", label: "Cash & Liquidity", category: "cash_liquidity" },
+  { href: "/dashboard/solvency", label: "Solvency & Leverage", category: "solvency" },
+  { href: "/dashboard/returns", label: "Returns", category: "returns" },
   { href: "/dashboard/insights", label: "AI Insights" },
 ];
+
+// Mirrors the "hidden" entries in app/services/role_access.py - the backend is the
+// real enforcement (a hidden category still 403s if requested directly); this just
+// keeps the nav from linking to a page that role can't open
+const ROLE_LABELS: Record<Role, string> = {
+  management: "Management",
+  board: "Board",
+  equity_investor: "Equity Investor",
+  credit_provider: "Credit Provider",
+};
+const HIDDEN_CATEGORIES: Partial<Record<Role, string[]>> = {
+  credit_provider: ["returns"],
+};
 
 export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
+  const [role, setRole] = useState<Role | null>(null);
+  const [fullName, setFullName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRole(getRole());
+    setFullName(getFullName());
+  }, []);
+
+  const hidden = new Set(role ? HIDDEN_CATEGORIES[role] ?? [] : []);
+  const items = ITEMS.filter((item) => !item.category || !hidden.has(item.category));
 
   return (
     <nav
@@ -35,9 +59,15 @@ export default function Nav() {
         <div style={{ fontSize: 11.5, letterSpacing: "0.06em", color: "var(--accent)", fontWeight: 700, textTransform: "uppercase" }}>
           Senus PLC
         </div>
-        <div style={{ fontSize: 15, fontWeight: 600 }}>Board Report</div>
+        <div style={{ fontSize: 15, fontWeight: 600, fontFamily: "var(--font-serif)" }}>Board Report</div>
+        {role && (
+          <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 3 }}>
+            <span className="role-badge" style={{ width: "fit-content" }}>{ROLE_LABELS[role]}</span>
+            {fullName && <span className="faint" style={{ fontSize: 11 }}>{fullName}</span>}
+          </div>
+        )}
       </div>
-      {ITEMS.map((item) => {
+      {items.map((item) => {
         const active = pathname === item.href;
         return (
           <Link
@@ -61,6 +91,7 @@ export default function Nav() {
       <button
         onClick={() => {
           clearToken();
+          delete document.body.dataset.role;
           router.replace("/login");
         }}
         style={{

@@ -6,7 +6,7 @@ import { ApiError } from "@/lib/api";
 import KpiTile from "@/components/KpiTile";
 import ComparisonChart from "@/components/ComparisonChart";
 import CompositionPie, { type CompositionSlice } from "@/components/CompositionPie";
-import { formatLineItemValue } from "@/lib/format";
+import { confidenceLabel, formatLineItemValue, lineItemLabel, statementLabel } from "@/lib/format";
 
 export default function CategoryView({
   title,
@@ -49,6 +49,12 @@ export default function CategoryView({
         <p className="muted" style={{ fontSize: 13.5, margin: "4px 0 0" }}>{description}</p>
         <p className="faint" style={{ fontSize: 12, margin: "4px 0 0" }}>
           {data.period_label} &middot; {data.period_start} to {data.period_end} &middot; {data.is_audited ? "Audited" : "Unaudited"}
+          {data.access_level === "summary" && (
+            <>
+              {" "}
+              &middot; <span style={{ color: "var(--accent)" }}>Summary view</span> - full detail available to Management
+            </>
+          )}
         </p>
       </div>
 
@@ -76,43 +82,48 @@ export default function CategoryView({
       {chart === "bar" && <ComparisonChart lineItems={data.line_items} periodLabel={data.period_label} />}
       {chart === "pie" && pieSlices && <CompositionPie title={pieTitle ?? "Composition"} slices={pieSlices(data)} />}
 
-      <div className="card" style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead>
-            <tr style={{ textAlign: "left", color: "var(--ink-faint)", fontSize: 11.5 }}>
-              <th style={{ padding: "6px 8px" }}>Statement</th>
-              <th style={{ padding: "6px 8px" }}>Line item</th>
-              <th style={{ padding: "6px 8px", textAlign: "right" }}>{data.period_label}</th>
-              <th style={{ padding: "6px 8px", textAlign: "right" }}>Prior period</th>
-              <th style={{ padding: "6px 8px" }}>Confidence</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.line_items.map((li) => (
-              <tr key={li.line_item} style={{ borderTop: "1px solid var(--border)" }}>
-                <td style={{ padding: "6px 8px" }} className="faint">{li.statement}</td>
-                <td style={{ padding: "6px 8px" }}>{li.line_item.replace(/_/g, " ")}</td>
-                <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "monospace" }}>{formatLineItemValue(li.line_item, li.value_eur)}</td>
-                <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "monospace" }} className="muted">
-                  {li.comparative_value_eur !== null ? formatLineItemValue(li.line_item, li.comparative_value_eur) : "—"}
-                </td>
-                <td style={{ padding: "6px 8px" }}>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      padding: "2px 7px",
-                      borderRadius: 99,
-                      background: li.extraction_confidence === "extracted" ? "var(--accent-soft)" : "var(--danger-soft)",
-                      color: li.extraction_confidence === "extracted" ? "var(--accent)" : "var(--danger)",
-                    }}
-                  >
-                    {li.extraction_confidence}
-                  </span>
-                </td>
+      <div>
+        <div className="section-label">Source figures</div>
+        <div className="card" style={{ overflowX: "auto", padding: 0 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ textAlign: "left", color: "var(--ink-faint)", fontSize: 11.5 }}>
+                <th style={{ padding: "10px 14px" }}>Statement</th>
+                <th style={{ padding: "10px 14px" }}>Figure</th>
+                <th style={{ padding: "10px 14px", textAlign: "right" }}>{data.period_label}</th>
+                <th style={{ padding: "10px 14px", textAlign: "right" }}>Prior period</th>
+                <th style={{ padding: "10px 14px" }}>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.line_items.map((li) => (
+                <tr key={li.line_item} style={{ borderTop: "1px solid var(--border)" }}>
+                  <td style={{ padding: "10px 14px" }} className="faint">{statementLabel(li.statement)}</td>
+                  <td style={{ padding: "10px 14px" }}>{lineItemLabel(li.line_item)}</td>
+                  <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+                    {formatLineItemValue(li.line_item, li.value_eur)}
+                  </td>
+                  <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums" }} className="muted">
+                    {li.comparative_value_eur !== null ? formatLineItemValue(li.line_item, li.comparative_value_eur) : "—"}
+                  </td>
+                  <td style={{ padding: "10px 14px" }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        padding: "2px 8px",
+                        borderRadius: 99,
+                        background: li.extraction_confidence === "extracted" ? "var(--accent-soft)" : "var(--danger-soft)",
+                        color: li.extraction_confidence === "extracted" ? "var(--accent)" : "var(--danger)",
+                      }}
+                    >
+                      {confidenceLabel(li.extraction_confidence)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

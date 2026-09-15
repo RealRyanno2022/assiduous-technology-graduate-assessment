@@ -13,6 +13,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       router.replace("/login");
       return;
     }
+    const role = window.localStorage.getItem("senus_role");
+    if (role) document.body.dataset.role = role;
     setReady(true);
   }, [router]);
 

@@ -13,9 +13,11 @@ export type CategoryResponse = {
   period_start: string;
   period_end: string;
   is_audited: boolean;
+  access_level: "full" | "summary";
   metrics: MetricOut[];
   line_items: LineItemOut[];
 };
+export type Role = "management" | "board" | "equity_investor" | "credit_provider";
 export type InsightOut = { category: string; title: string; body: string; model: string };
 export type ReportSection = { heading: string; body: string };
 export type DirectorsReportResponse = { period_label: string; sections: ReportSection[]; model: string; generated_at: string };
@@ -37,8 +39,20 @@ export function setToken(token: string) {
   window.localStorage.setItem("senus_token", token);
 }
 
+export function getRole(): Role | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem("senus_role") as Role | null;
+}
+
+export function getFullName(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem("senus_full_name");
+}
+
 export function clearToken() {
   window.localStorage.removeItem("senus_token");
+  window.localStorage.removeItem("senus_role");
+  window.localStorage.removeItem("senus_full_name");
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -52,12 +66,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new ApiError(res.status, text || res.statusText);
+    // FastAPI error bodies are {"detail": "..."} - surface the message, not raw JSON
+    let message = text || res.statusText;
+    try {
+      const parsed = JSON.parse(text);
+      if (typeof parsed?.detail === "string") message = parsed.detail;
+    } catch {
+      // not JSON - fall back to the raw text already assigned above
+    }
+    throw new ApiError(res.status, message);
   }
   return res.json() as Promise<T>;
 }
 
-export async function login(email: string, password: string): Promise<string> {
+export async function login(email: string, password: string): Promise<Role> {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -66,7 +88,9 @@ export async function login(email: string, password: string): Promise<string> {
   if (!res.ok) throw new ApiError(res.status, "Incorrect email or password");
   const data = await res.json();
   setToken(data.access_token);
-  return data.access_token;
+  window.localStorage.setItem("senus_role", data.role);
+  window.localStorage.setItem("senus_full_name", data.full_name);
+  return data.role as Role;
 }
 
 export const getGrowth = () => request<CategoryResponse>("/growth");
