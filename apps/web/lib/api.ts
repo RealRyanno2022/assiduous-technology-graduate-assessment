@@ -17,6 +17,8 @@ export type CategoryResponse = {
   line_items: LineItemOut[];
 };
 export type InsightOut = { category: string; title: string; body: string; model: string };
+export type ReportSection = { heading: string; body: string };
+export type DirectorsReportResponse = { period_label: string; sections: ReportSection[]; model: string; generated_at: string };
 
 export class ApiError extends Error {
   status: number;
@@ -79,3 +81,5 @@ export const askInsights = (question: string) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question }),
   });
+export const getDirectorsReport = (refresh = false) =>
+  request<DirectorsReportResponse>(`/reports/directors-report${refresh ? "?refresh=true" : ""}`);

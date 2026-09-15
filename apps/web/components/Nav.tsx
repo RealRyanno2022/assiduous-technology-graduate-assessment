@@ -5,7 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { clearToken } from "@/lib/api";
 
 const ITEMS = [
-  { href: "/dashboard", label: "Growth & Revenue" },
+  { href: "/dashboard", label: "Directors' Report" },
+  { href: "/dashboard/growth", label: "Growth & Revenue" },
   { href: "/dashboard/profitability", label: "Profitability" },
   { href: "/dashboard/cash-liquidity", label: "Cash & Liquidity" },
   { href: "/dashboard/solvency", label: "Solvency & Leverage" },

@@ -5,12 +5,19 @@
   --ink: #14171a;
   --ink-soft: #565f5b;
   --ink-faint: #8a938e;
+  /* brand accent - UI chrome only (nav, buttons); never used to encode chart data */
   --accent: #1f6b4a;
   --accent-soft: #e4f0e9;
   --danger: #9c3b3b;
   --danger-soft: #f6e6e6;
   --warn: #93630c;
   --radius: 10px;
+
+  /* validated data-viz tokens (see dataviz skill palette.md) - CVD-checked, not eyeballed */
+  --series-1: #2a78d6; /* categorical slot 1 - the "current period" series in charts */
+  --status-good: #0ca30c;
+  --status-critical: #d03b3b;
+  --chart-grid: #e1e0d9;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +33,11 @@
     --danger: #d98787;
     --danger-soft: #3a2222;
     --warn: #d9ab5c;
+
+    --series-1: #3987e5;
+    --status-good: #0ca30c;
+    --status-critical: #d03b3b;
+    --chart-grid: #2c2c2a;
   }
 }
 
