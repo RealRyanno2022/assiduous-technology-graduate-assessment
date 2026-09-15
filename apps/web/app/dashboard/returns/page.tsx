@@ -9,6 +9,7 @@ export default function ReturnsPage() {
       title="Returns"
       description="Return on capital employed (ROCE) - a metric that is not yet meaningful for a pre-scale business, and the AI commentary says so."
       fetcher={getReturns}
+      chart="none"
     />
   );
 }

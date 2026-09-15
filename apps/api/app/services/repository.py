@@ -19,7 +19,16 @@ CATEGORY_LINE_ITEMS: dict[str, list[str]] = {
         "debtors",
         "creditors_due_within_one_year",
     ],
-    "solvency": ["net_assets", "creditors_due_after_one_year", "cash_and_cash_equivalents", "group_operating_loss", "interest_payable"],
+    "solvency": [
+        "net_assets",
+        "creditors_due_after_one_year",
+        "cash_and_cash_equivalents",
+        "group_operating_loss",
+        "interest_payable",
+        "called_up_share_capital",
+        "share_premium",
+        "retained_earnings",
+    ],
     "returns": ["group_operating_loss", "total_assets_less_current_liabilities"],
 }
 

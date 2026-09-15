@@ -18,8 +18,8 @@ export default function ComparisonChart({ lineItems, periodLabel }: { lineItems:
   return (
     <div className="card" style={{ height: 320 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 40 }} barGap={2}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+        <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 40 }} barGap={2} barCategoryGap="30%">
+          <CartesianGrid strokeDasharray="none" stroke="var(--chart-grid)" vertical={false} />
           <XAxis dataKey="name" angle={-30} textAnchor="end" interval={0} height={70} tick={{ fontSize: 11 }} stroke="var(--ink-faint)" />
           <YAxis tick={{ fontSize: 11 }} stroke="var(--ink-faint)" />
           <Tooltip
@@ -29,9 +29,10 @@ export default function ComparisonChart({ lineItems, periodLabel }: { lineItems:
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           {/* Prior is deliberately neutral gray (context, not an identity to distinguish), current
-              period is the one validated categorical hue that needs CVD-safe distinction */}
-          <Bar dataKey="Prior" fill="var(--ink-faint)" radius={[4, 4, 0, 0]} animationDuration={700} animationEasing="ease-out" />
-          <Bar dataKey={periodLabel} fill="var(--series-1)" radius={[4, 4, 0, 0]} animationDuration={700} animationEasing="ease-out" />
+              period is the one validated categorical hue that needs CVD-safe distinction. Bars are
+              capped at 24px and kept apart (barGap) rather than filling the slot, per mark spec */}
+          <Bar dataKey="Prior" fill="var(--ink-faint)" radius={[3, 3, 0, 0]} maxBarSize={22} animationDuration={700} animationEasing="ease-out" />
+          <Bar dataKey={periodLabel} fill="var(--series-1)" radius={[3, 3, 0, 0]} maxBarSize={22} animationDuration={700} animationEasing="ease-out" />
         </BarChart>
       </ResponsiveContainer>
     </div>

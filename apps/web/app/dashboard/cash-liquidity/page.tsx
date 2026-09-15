@@ -9,6 +9,7 @@ export default function CashLiquidityPage() {
       title="Cash & Liquidity"
       description="Cash on hand, operating cash burn, runway and working capital."
       fetcher={getCashLiquidity}
+      chart="none"
     />
   );
 }

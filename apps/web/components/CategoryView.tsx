@@ -5,6 +5,7 @@ import type { CategoryResponse } from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import KpiTile from "@/components/KpiTile";
 import ComparisonChart from "@/components/ComparisonChart";
+import CompositionPie, { type CompositionSlice } from "@/components/CompositionPie";
 import { formatLineItemValue } from "@/lib/format";
 
 export default function CategoryView({
@@ -12,11 +13,22 @@ export default function CategoryView({
   description,
   fetcher,
   dataGapNote,
+  chart = "bar",
+  pieTitle,
+  pieSlices,
 }: {
   title: string;
   description: string;
   fetcher: () => Promise<CategoryResponse>;
   dataGapNote?: string;
+  // "bar" (default) compares current vs prior period; "pie" shows a part-to-whole
+  // composition (only where the parts are genuinely non-negative and sum to a
+  // meaningful whole - see the per-page callers); "none" drops the chart entirely
+  // where neither form adds anything over the KPI tiles + table (brief feedback:
+  // cut low-value charts rather than fill space)
+  chart?: "bar" | "pie" | "none";
+  pieTitle?: string;
+  pieSlices?: (data: CategoryResponse) => CompositionSlice[];
 }) {
   const [data, setData] = useState<CategoryResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +73,8 @@ export default function CategoryView({
         ))}
       </div>
 
-      <ComparisonChart lineItems={data.line_items} periodLabel={data.period_label} />
+      {chart === "bar" && <ComparisonChart lineItems={data.line_items} periodLabel={data.period_label} />}
+      {chart === "pie" && pieSlices && <CompositionPie title={pieTitle ?? "Composition"} slices={pieSlices(data)} />}
 
       <div className="card" style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
