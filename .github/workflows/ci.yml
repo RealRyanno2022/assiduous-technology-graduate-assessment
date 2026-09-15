@@ -37,3 +37,39 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:8000
+
+  # Proves the "one command, reproducible environment" claim for real: builds and
+  # boots the exact docker-compose.yml a reviewer would run, then smoke-tests it
+  # end-to-end (login -> a metrics endpoint -> the web app) before tearing down.
+  docker-compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker compose up
+        run: docker compose -f infra/docker-compose.yml up -d --build
+      - name: Wait for API health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health; then exit 0; fi
+            sleep 2
+          done
+          echo "API did not become healthy in time"; exit 1
+      - name: Wait for web
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://localhost:3000; then exit 0; fi
+            sleep 2
+          done
+          echo "Web did not become healthy in time"; exit 1
+      - name: Smoke test login + a metrics endpoint
+        run: |
+          TOKEN=$(curl -sf -X POST http://localhost:8000/auth/login \
+            -d "username=ceo@senus.com&password=senus2030" \
+            -H "Content-Type: application/x-www-form-urlencoded" | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+          curl -sf http://localhost:8000/growth -H "Authorization: Bearer $TOKEN" | grep -q revenue_yoy_growth_pct
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose -f infra/docker-compose.yml logs
+      - name: docker compose down
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down -v
