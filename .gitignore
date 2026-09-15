@@ -12,6 +12,7 @@ apps/web/.env.local
 
 # Env
 .env
+.cursor/mcp.json
 
 *.log
 
