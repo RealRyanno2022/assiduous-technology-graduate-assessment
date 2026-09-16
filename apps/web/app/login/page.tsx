@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/api";
+import { ApiError, login } from "@/lib/api";
 
 const DEMO_ACCOUNTS = [
   { email: "management@senus.com", label: "Management", hint: "Full detail, every category" },
@@ -25,8 +25,11 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.replace("/dashboard");
-    } catch {
-      setError("Incorrect email or password");
+    } catch (err) {
+      // ApiError means the server actually responded (a real auth failure);
+      // anything else (network/CORS/blocked) is a connectivity problem, not a
+      // bad password - conflating the two makes real outages look like typos.
+      setError(err instanceof ApiError ? err.message : "Could not reach the server - check your connection");
     } finally {
       setLoading(false);
     }
