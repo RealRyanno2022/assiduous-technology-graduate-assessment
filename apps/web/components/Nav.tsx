@@ -44,11 +44,14 @@ export default function Nav() {
     setFullName(getFullName());
   }, []);
 
+  // Conditionally rendered, not just reordered: a role's sidebar only contains the
+  // categories it has "full" access to, per the exact same ROLE_ACCESS matrix
+  // enforced server-side in role_access.py. Summary/hidden categories are omitted
+  // from the nav entirely - minimizing what's shown, not just what's emphasized.
   const access = role ? ROLE_ACCESS[role] : {};
-  const primaryCategories = CATEGORY_ITEMS.filter((item) => access[item.category] === "full");
-  const secondaryCategories = CATEGORY_ITEMS.filter((item) => access[item.category] === "summary");
+  const categories = CATEGORY_ITEMS.filter((item) => access[item.category] === "full");
 
-  function renderLink(item: { href: string; label: string }, faint = false) {
+  function renderLink(item: { href: string; label: string }) {
     const active = pathname === item.href;
     return (
       <Link
@@ -57,10 +60,10 @@ export default function Nav() {
         style={{
           padding: "9px 10px",
           borderRadius: 8,
-          fontSize: faint ? 12.5 : 13.5,
+          fontSize: 13.5,
           textDecoration: "none",
           background: active ? "var(--accent-soft)" : "transparent",
-          color: active ? "var(--accent)" : faint ? "var(--ink-faint)" : "var(--ink-soft)",
+          color: active ? "var(--accent)" : "var(--ink-soft)",
           fontWeight: active ? 600 : 500,
         }}
       >
@@ -95,20 +98,8 @@ export default function Nav() {
         )}
       </div>
       {renderLink({ href: "/dashboard", label: "Directors' Report" })}
-      {primaryCategories.map((item) => renderLink(item))}
+      {categories.map((item) => renderLink(item))}
       {renderLink({ href: "/dashboard/insights", label: "AI Insights" })}
-
-      {secondaryCategories.length > 0 && (
-        <>
-          <div
-            className="faint"
-            style={{ padding: "14px 10px 4px", fontSize: 10.5, letterSpacing: "0.05em", textTransform: "uppercase" }}
-          >
-            Also available (summary)
-          </div>
-          {secondaryCategories.map((item) => renderLink(item, true))}
-        </>
-      )}
 
       <div style={{ flex: 1 }} />
       <button
