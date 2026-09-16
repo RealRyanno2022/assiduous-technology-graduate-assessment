@@ -181,14 +181,17 @@ def _seed_fy2025_context(db, company: Company, source_doc: SourceDocument, hy202
 _DEMO_USERS = [
     ("management@senus.com", "Brendan Allen", "management"),
     ("board@senus.com", "Gerard Keenan", "board"),
-    ("investor@senus.com", "Equity Investor", "equity_investor"),
-    ("lender@senus.com", "Credit Provider", "credit_provider"),
+    ("investor@senus.com", "Niamh Doyle", "equity_investor"),
+    ("lender@senus.com", "Cormac Walsh", "credit_provider"),
 ]
 
 
 def _seed_demo_user(db):
     for email, full_name, role in _DEMO_USERS:
-        if db.query(User).filter(User.email == email).first():
+        existing = db.query(User).filter(User.email == email).first()
+        if existing:
+            existing.full_name = full_name
+            existing.role = role
             continue
         db.add(User(email=email, hashed_password=hash_password("senus2030"), full_name=full_name, role=role))
     db.commit()

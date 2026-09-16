@@ -2,7 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ApiError, login } from "@/lib/api";
+import { ApiError, login, type Role } from "@/lib/api";
+
+// Each role lands on the page matching their primary concern rather than a
+// one-size-fits-all overview - mirrors the "full" categories per role in
+// app/services/role_access.py (see Nav.tsx for the same mapping applied to the sidebar)
+const ROLE_LANDING: Record<Role, string> = {
+  management: "/dashboard",
+  board: "/dashboard/insights",
+  equity_investor: "/dashboard/returns",
+  credit_provider: "/dashboard/cash-liquidity",
+};
 
 const DEMO_ACCOUNTS = [
   { email: "management@senus.com", label: "Management", hint: "Full detail, every category" },
@@ -23,8 +33,8 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      await login(email, password);
-      router.replace("/dashboard");
+      const role = await login(email, password);
+      router.replace(ROLE_LANDING[role]);
     } catch (err) {
       // ApiError means the server actually responded (a real auth failure);
       // anything else (network/CORS/blocked) is a connectivity problem, not a
