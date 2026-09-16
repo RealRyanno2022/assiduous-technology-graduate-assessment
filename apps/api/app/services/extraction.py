@@ -1,10 +1,13 @@
 import json
+import logging
 import re
 
 from pypdf import PdfReader
 
 from app.core.config import settings
 from app.services.schema import LINE_ITEM_KEYS, ExtractedLineItem
+
+logger = logging.getLogger(__name__)
 
 # Maps a canonical key to the label(s) as printed in the Senus HY2026 PR, in statement order
 _OFFLINE_LABELS: dict[str, tuple[str, list[str]]] = {
@@ -186,6 +189,8 @@ def extract_with_llm(text: str) -> list[ExtractedLineItem]:
         messages=[{"role": "user", "content": text}],
     )
     raw = response.content[0].text
+    if raw is None:
+        raise ValueError(f"LLM returned no text content (stop_reason={response.stop_reason})")
     # Models sometimes wrap JSON in a fenced code block; strip that if present
     raw = re.sub(r"^```(?:json)?|```$", "", raw.strip(), flags=re.MULTILINE).strip()
     payload = json.loads(raw)
@@ -195,7 +200,14 @@ def extract_with_llm(text: str) -> list[ExtractedLineItem]:
 def extract(pdf_path: str) -> tuple[list[ExtractedLineItem], str]:
     text = extract_pdf_text(pdf_path)
     if settings.anthropic_api_key:
-        items, method = extract_with_llm(text), "llm"
+        try:
+            items, method = extract_with_llm(text), "llm"
+        except Exception:
+            # The offline parser is a real fallback, not a placeholder - every AI
+            # path in this app is meant to degrade gracefully, not take the whole
+            # ingestion run down with it.
+            logger.exception("LLM extraction failed, falling back to offline parser")
+            items, method = extract_offline(text), "offline"
     else:
         items, method = extract_offline(text), "offline"
     return [*items, *extract_narrative_kpis(text)], method
