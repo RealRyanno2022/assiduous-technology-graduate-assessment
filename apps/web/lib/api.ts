@@ -1,4 +1,10 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// NEXT_PUBLIC_API_URL always wins when actually set. Otherwise: a production build
+// defaults to the deployed Render API rather than localhost, since a Vercel build
+// silently proceeding with the wrong (dev) default is worse than this being wrong
+// for the rare case someone runs `next build` locally against a non-default API.
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "production" ? "https://senus-api-y1hy.onrender.com" : "http://localhost:8000");
 
 export type MetricOut = { metric_key: string; metric_value: number; unit: string };
 export type LineItemOut = {
