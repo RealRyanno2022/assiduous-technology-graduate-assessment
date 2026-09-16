@@ -13,9 +13,15 @@ from app.services import metrics as metrics_service  # noqa: E402
 from app.services.schema import failed_target_keys  # noqa: E402
 
 # SOURCE_PDF_PATH lets the Docker image (which copies data/ to a flat /app/data path)
-# override the local-dev default of walking up to the repo's data/raw/ directory
-_DEFAULT_PDF_PATH = Path(__file__).resolve().parents[3] / "data" / "raw" / "senus_hy2026_results_pr.pdf"
-PDF_PATH = Path(os.environ.get("SOURCE_PDF_PATH", str(_DEFAULT_PDF_PATH)))
+# override the local-dev default of walking up to the repo's data/raw/ directory.
+# Computed lazily: the repo-relative walk-up only has enough parents to resolve in
+# local dev - it would IndexError in Docker's flattened layout if ever evaluated there.
+_source_pdf_path_env = os.environ.get("SOURCE_PDF_PATH")
+PDF_PATH = (
+    Path(_source_pdf_path_env)
+    if _source_pdf_path_env
+    else Path(__file__).resolve().parents[3] / "data" / "raw" / "senus_hy2026_results_pr.pdf"
+)
 
 # The FY25 full-year figures aren't in the HY2026 PR's financial statements - they're
 # quoted narratively in its "Notes to editors" section as reference context only
