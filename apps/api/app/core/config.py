@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expires_minutes: int = 60 * 12
     cors_origins: list[str] = ["http://localhost:3000"]
+    allowed_ips: list[str] = []
 
 
 settings = Settings()
