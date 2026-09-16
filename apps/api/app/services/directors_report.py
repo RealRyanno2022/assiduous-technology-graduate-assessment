@@ -1,7 +1,10 @@
 import json
+import logging
 import re
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 # Section order and headings mirror the structure of a real half-year Directors'/
 # Chairman's statement (see the Senus HY2026 PR itself: highlights, financial review,
@@ -25,7 +28,10 @@ cover something a section would normally mention, write around it rather than ma
 
 def generate_directors_report(period_label: str, metrics: dict[str, dict[str, float]], line_items: dict[str, float]) -> tuple[list[dict], str]:
     if settings.anthropic_api_key:
-        return _generate_with_llm(period_label, metrics, line_items), settings.anthropic_model
+        try:
+            return _generate_with_llm(period_label, metrics, line_items), settings.anthropic_model
+        except Exception:
+            logger.exception("LLM Directors' Report generation failed, falling back to offline template")
     return _generate_offline(period_label, metrics, line_items), "offline-template"
 
 
@@ -40,8 +46,10 @@ def _generate_with_llm(period_label: str, metrics: dict[str, dict[str, float]], 
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": json.dumps(payload)}],
     )
-    raw = response.content[0].text.strip()
-    raw = re.sub(r"^```(?:json)?|```$", "", raw, flags=re.MULTILINE).strip()
+    raw = response.content[0].text
+    if raw is None:
+        raise ValueError(f"LLM returned no text content (stop_reason={response.stop_reason})")
+    raw = re.sub(r"^```(?:json)?|```$", "", raw.strip(), flags=re.MULTILINE).strip()
     sections = json.loads(raw)
     return [{"heading": h, "body": sections[h]} for h in SECTION_ORDER if h in sections]
 

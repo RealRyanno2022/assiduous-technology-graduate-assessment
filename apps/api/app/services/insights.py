@@ -1,6 +1,9 @@
 import json
+import logging
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 _SYSTEM_PROMPT = """You are a financial analyst writing commentary for a Board Report.
 You are given a category name and a JSON payload of the computed metrics and source
@@ -45,7 +48,10 @@ _OFFLINE_TEMPLATES = {
 
 def generate_insight(category: str, metrics: dict[str, float], line_items: dict[str, float]) -> tuple[str, str]:
     if settings.anthropic_api_key:
-        return _generate_with_llm(category, metrics, line_items), settings.anthropic_model
+        try:
+            return _generate_with_llm(category, metrics, line_items), settings.anthropic_model
+        except Exception:
+            logger.exception("LLM insight generation failed for '%s', falling back to offline template", category)
     template = _OFFLINE_TEMPLATES.get(category)
     body = template(metrics) if template else f"No commentary template available for '{category}'."
     return body, "offline-template"
@@ -62,7 +68,10 @@ def _generate_with_llm(category: str, metrics: dict[str, float], line_items: dic
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": json.dumps(payload)}],
     )
-    return response.content[0].text.strip()
+    raw = response.content[0].text
+    if raw is None:
+        raise ValueError(f"LLM returned no text content (stop_reason={response.stop_reason})")
+    return raw.strip()
 
 
 _QA_SYSTEM_PROMPT = """You are a financial analyst assistant answering ad-hoc questions
@@ -81,12 +90,21 @@ def answer_question(question: str, all_metrics: dict[str, dict[str, float]], all
         )
     from anthropic import Anthropic
 
-    client = Anthropic(api_key=settings.anthropic_api_key)
-    payload = {"metrics": all_metrics, "line_items": all_line_items, "question": question}
-    response = client.messages.create(
-        model=settings.anthropic_model,
-        max_tokens=500,
-        system=_QA_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": json.dumps(payload)}],
-    )
-    return response.content[0].text.strip(), settings.anthropic_model
+    try:
+        client = Anthropic(api_key=settings.anthropic_api_key)
+        payload = {"metrics": all_metrics, "line_items": all_line_items, "question": question}
+        response = client.messages.create(
+            model=settings.anthropic_model,
+            max_tokens=500,
+            system=_QA_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": json.dumps(payload)}],
+        )
+        raw = response.content[0].text
+        if raw is None:
+            raise ValueError(f"LLM returned no text content (stop_reason={response.stop_reason})")
+        return raw.strip(), settings.anthropic_model
+    except Exception:
+        # No offline template exists for free-form Q&A by design - but a transient
+        # LLM failure should surface as a clear answer, not a raw 500.
+        logger.exception("LLM Q&A failed")
+        return "Sorry, the AI assistant couldn't answer that just now - please try again.", "offline-unavailable"
