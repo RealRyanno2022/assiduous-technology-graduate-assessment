@@ -64,7 +64,7 @@ def _generate_with_llm(category: str, metrics: dict[str, float], line_items: dic
     payload = {"category": category, "metrics": metrics, "line_items": line_items}
     response = client.messages.create(
         model=settings.anthropic_model,
-        max_tokens=400,
+        max_tokens=2000,
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": json.dumps(payload)}],
     )
@@ -95,7 +95,7 @@ def answer_question(question: str, all_metrics: dict[str, dict[str, float]], all
         payload = {"metrics": all_metrics, "line_items": all_line_items, "question": question}
         response = client.messages.create(
             model=settings.anthropic_model,
-            max_tokens=500,
+            max_tokens=2000,
             system=_QA_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": json.dumps(payload)}],
         )

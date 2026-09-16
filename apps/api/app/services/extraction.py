@@ -184,7 +184,7 @@ def extract_with_llm(text: str) -> list[ExtractedLineItem]:
     client = Anthropic(api_key=settings.anthropic_api_key)
     response = client.messages.create(
         model=settings.anthropic_model,
-        max_tokens=4096,
+        max_tokens=8000,
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": text}],
     )

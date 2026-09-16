@@ -42,7 +42,7 @@ def _generate_with_llm(period_label: str, metrics: dict[str, dict[str, float]], 
     payload = {"period_label": period_label, "metrics": metrics, "line_items": line_items}
     response = client.messages.create(
         model=settings.anthropic_model,
-        max_tokens=1200,
+        max_tokens=3000,
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": json.dumps(payload)}],
     )
