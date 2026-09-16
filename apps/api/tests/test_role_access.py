@@ -15,16 +15,20 @@ def test_credit_provider_full_on_their_own_concerns():
     assert access_level("credit_provider", "solvency") == "full"
 
 
-def test_equity_investor_full_on_growth_and_returns_summary_on_balance_sheet():
+def test_equity_investor_full_on_growth_and_returns_summary_on_rest():
     assert access_level("equity_investor", "growth") == "full"
     assert access_level("equity_investor", "returns") == "full"
+    assert access_level("equity_investor", "profitability") == "summary"
     assert access_level("equity_investor", "cash_liquidity") == "summary"
     assert access_level("equity_investor", "solvency") == "summary"
 
 
-def test_board_growth_is_summary_everything_else_full():
+def test_board_full_on_going_concern_categories_summary_on_operational_trend():
     assert access_level("board", "growth") == "summary"
-    assert access_level("board", "profitability") == "full"
+    assert access_level("board", "profitability") == "summary"
+    assert access_level("board", "cash_liquidity") == "full"
+    assert access_level("board", "solvency") == "full"
+    assert access_level("board", "returns") == "full"
 
 
 def test_summary_allowlist_only_defined_for_summary_tier_roles():

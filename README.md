@@ -11,12 +11,12 @@ narrative meant to save real time on public correspondence, not just another cha
 
 Password `senus2030` for all.
 
-| Email | Role | View |
-|---|---|---|
-| `management@senus.com` | Management | Full detail, every category |
-| `board@senus.com` | Board | Everything except two sales-ops figures |
-| `investor@senus.com` | Equity Investor | Growth & Returns in depth; balance sheet headline-only |
-| `lender@senus.com` | Credit Provider | Cash & Solvency in depth; Returns hidden |
+| Email | Name | Role | View |
+|---|---|---|---|
+| `management@senus.com` | Brendan Allen | Management | Full detail, every category |
+| `board@senus.com` | Gerard Keenan | Board | Full on Cash, Solvency & Returns (going concern); Growth & Profitability headline-only |
+| `investor@senus.com` | Niamh Doyle | Equity Investor | Growth & Returns in depth; everything else headline-only |
+| `lender@senus.com` | Cormac Walsh | Credit Provider | Cash & Solvency in depth; Returns hidden entirely |
 
 ## Architecture
 

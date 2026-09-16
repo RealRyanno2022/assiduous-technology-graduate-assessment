@@ -16,8 +16,8 @@ const ROLE_LANDING: Record<Role, string> = {
 
 const DEMO_ACCOUNTS = [
   { email: "management@senus.com", label: "Management", hint: "Full detail, every category" },
-  { email: "board@senus.com", label: "Board", hint: "Governance view - trimmed sales-ops detail" },
-  { email: "investor@senus.com", label: "Equity Investor", hint: "Growth & returns in depth, balance sheet headline-only" },
+  { email: "board@senus.com", label: "Board", hint: "Full on cash, solvency & returns - growth & profitability headline-only" },
+  { email: "investor@senus.com", label: "Equity Investor", hint: "Growth & returns in depth, everything else headline-only" },
   { email: "lender@senus.com", label: "Credit Provider", hint: "Cash & solvency in depth, returns hidden" },
 ];
 

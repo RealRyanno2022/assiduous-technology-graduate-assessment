@@ -28,8 +28,8 @@ const ROLE_LABELS: Record<Role, string> = {
 type AccessLevel = "full" | "summary" | "hidden";
 const ROLE_ACCESS: Record<Role, Record<string, AccessLevel>> = {
   management: { growth: "full", profitability: "full", cash_liquidity: "full", solvency: "full", returns: "full" },
-  board: { growth: "summary", profitability: "full", cash_liquidity: "full", solvency: "full", returns: "full" },
-  equity_investor: { growth: "full", profitability: "full", cash_liquidity: "summary", solvency: "summary", returns: "full" },
+  board: { growth: "summary", profitability: "summary", cash_liquidity: "full", solvency: "full", returns: "full" },
+  equity_investor: { growth: "full", profitability: "summary", cash_liquidity: "summary", solvency: "summary", returns: "full" },
   credit_provider: { growth: "summary", profitability: "summary", cash_liquidity: "full", solvency: "full", returns: "hidden" },
 };
 
