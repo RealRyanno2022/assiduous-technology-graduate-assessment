@@ -1,8 +1,14 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# apps/api -> repo root locally; resolves to a nonexistent /.env inside the container, which is ignored
+_REPO_ROOT_ENV = Path(__file__).resolve().parents[2].parent.parent / ".env"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # repo-root .env first, then a cwd-local .env overrides it
+    model_config = SettingsConfigDict(env_file=(_REPO_ROOT_ENV, ".env"), extra="ignore")
 
     database_url: str = "sqlite:///./senus.db"
     anthropic_api_key: str | None = None

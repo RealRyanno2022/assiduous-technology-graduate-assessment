@@ -12,7 +12,8 @@ Write 2-4 sentences of commentary a CEO/Board member would find useful: state th
 headline number, note the direction/trend, and flag anything a careful reader should
 know that the number alone doesn't show (e.g. cash driven by financing not operations,
 or a margin that isn't yet meaningful because the business is pre-scale).
-Do not invent figures that are not in the payload. Be direct, not promotional."""
+Do not invent figures that are not in the payload. Be direct, not promotional.
+All figures are in euro (€). Write plain prose - no Markdown, headings or bullet points."""
 
 # Deterministic phrasing used when no LLM key is configured - same inputs, no API call
 _OFFLINE_TEMPLATES = {
@@ -78,7 +79,8 @@ _QA_SYSTEM_PROMPT = """You are a financial analyst assistant answering ad-hoc qu
 about Senus PLC's Board Report. You are given the full set of computed metrics and
 extracted line items across all categories for the latest reporting period. Answer the
 user's question using only this data. If the data doesn't cover the question, say so
-rather than guessing."""
+rather than guessing. All figures are in euro (€). Answer in 2-4 sentences of plain
+prose - no Markdown, headings or bullet points."""
 
 
 def answer_question(question: str, all_metrics: dict[str, dict[str, float]], all_line_items: dict[str, float]) -> tuple[str, str]:

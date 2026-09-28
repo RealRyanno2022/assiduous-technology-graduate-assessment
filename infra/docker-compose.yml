@@ -19,11 +19,14 @@ services:
     build:
       context: ..
       dockerfile: apps/api/Dockerfile
+    # supplies ANTHROPIC_API_KEY; absent in CI, where the offline fallback runs instead
+    env_file:
+      - path: ../.env
+        required: false
     environment:
       DATABASE_URL: postgresql+psycopg2://senus:senus@db:5432/senus
       JWT_SECRET: dev-secret-change-me
       CORS_ORIGINS: '["http://localhost:3000"]'
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:
